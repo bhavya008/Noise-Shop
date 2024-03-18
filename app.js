@@ -5,14 +5,16 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongodbSession = require('connect-mongodb-session')(session);
 const Product = require("./model/Product");
+
 const User = require("./model/User");
 
+const userRoutes = require('./routes/userRoutes');
 const app = express();
 const PORT = 3000;
 
 const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
 mongoose.connect(DBURI)
-    .then((result)=> app.listen(PORT, () => console.log('server started on' + PORT)))
+    .then((result)=> app.listen(PORT, () => console.log('server started on ' + PORT)))
     .catch((error) => console.log(error));
 
 app.set('view engine', 'ejs');
@@ -32,6 +34,14 @@ const isAuth = (req, res, next) => {
     }
 }
 
+const isAuthAdmin = (req, res, next) => {
+    if(req.session.isAuth) {
+        next();
+    } else {
+        res.redirect('/admin-login');
+    }
+}
+
 app.use(
     session({
         secret: 'Random key to session',
@@ -40,92 +50,86 @@ app.use(
         store
 }))
 
-app.get('/products', (req, res) => {
-    res.render('products', {title: 'PRODUCTS'});
+////////////////////////////////////// Admin
+
+
+app.get('/products-list', isAuthAdmin, (req, res) => {
+    res.render('products-list', {title: 'LIST OF PRODUCTS', error: null});
 })
 
-app.post('/products', (req, res) => {
-    const product = new Product(req.body);
-
-    product.save()
-        .then((result) => res.redirect('/'))
-        .catch((error) => console.log(error));
+app.get('/admin-products-list', isAuthAdmin, (req, res) => {
+    Product.find()
+    .then((result) => res.render('admin-products-list', {title: 'LIST OF PRODUCTS', products: result, error: null }))
+    .catch((error) => console.log(error));
 })
 
-app.get('/products/:id', (req, res) => {
-    const id = req.params.id;
-
-    Product.findById(id)
-        .then((result) => res.render('cart', {title: 'CART', product: result}))
-        .catch((error) => console.log(error));
+app.get('/admin-login', (req, res) => {
+    var error = req.query.error;
+    res.render('admin-login', {title: 'LOGIN', error: error || null});
 })
 
-app.get('/cart', (req, res) => {
-    res.render('cart', {title: 'CART', product: null});
-})
+app.post('/admin-login', async(req,res) => {
+    const {userName, password, error} = req.body;
 
-/////////////////////////////////// USER
+    const root = "root";
 
-app.get('/profile', isAuth, (req, res) => {
-    res.render('users/profile', {title: 'PROFILE'});
-})
+    const user = await User.findOne({userName: root});
+    
+    if(userName == '' && password == '') {
+        return res.redirect('/admin-login?error=Empty%20fileds');
+    }
 
-app.post('/profile', (req, res) => {
-    req.session.destroy((error) => {
-        if(error) throw error;
-        res.redirect('/login');
-    });
-})
-
-app.get('/login', (req, res) => {
-    res.render('users/login', {title: 'LOGIN'});
-})
-
-app.post('/login', async(req,res) => {
-    const {userName, password} = req.body;
-
-    const user = await User.findOne({userName});
-
-    if(!user) {
-        return res.redirect('/login');
+    if(userName != user.userName) {
+        return res.redirect('/admin-login?error=Not%20a%20valid%20user');
     }
 
     const isMatchedPassword = await bcrypt.compare(password, user.password);
 
     if(!isMatchedPassword){
-        return res.redirect('/login');
+        return res.redirect('/admin-login?error=Not%20a%20valid%20password');
     }
 
     req.session.isAuth = true;
-    res.redirect('/profile');
+    res.render('products', {title: 'ADD PRODUCTS', error: null});
 })
 
-app.get('/register', (req, res) => {
-    res.render('users/register', {title: 'REGISTER'});
+app.get('/products', isAuthAdmin ,(req, res) => {
+    res.render('products', {title: 'PRODUCTS',  error: null});
 })
 
-app.post('/register', async(req, res) => {
-    const {firstName, lastName, userName, password} = req.body;
+app.post('/products', (req, res) => {
+    const product = new Product(req.body);
 
-    let user = await User.findOne({userName});
+    const existProduct = Product.find(product.make, product.prodName);
 
-    if(user) {
-        return res.redirect('/register');
+    if(!existProduct) {
+        product.save()
+            .then((result) => res.redirect('/admin-products-list'))
+            .catch((error) => console.log(error));
+        return;
+    } else {
+        res.render('products', {title: 'PRODUCTS', error: "Product Already Exist !"});
     }
-
-    const hashPassword = await bcrypt.hash(password, 12);
-
-    user = new User({
-        firstName,
-        lastName,
-        userName,
-        password: hashPassword
-    });
-
-    await user.save();
-
-    res.redirect('/login');
+    
 })
+
+///////////////////////////////////////
+
+app.get('/products/:id', (req, res) => {
+    const id = req.params.id;
+
+    Product.findById(id)
+            .then((result) => res.render('cart', {title: 'CART', product: result}))
+            .catch((error) => console.log(error));
+})
+
+app.get('/cart', (req, res) => { 
+    res.render('cart', {title: 'CART', product: null});
+})
+
+/////////////////////////////////// USER
+
+app.use(userRoutes);
 
 ///////////////////////////////////
 

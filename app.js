@@ -52,15 +52,22 @@ app.use(
 
 ////////////////////////////////////// Admin
 
-
-app.get('/products-list', isAuthAdmin, (req, res) => {
-    res.render('products-list', {title: 'LIST OF PRODUCTS', error: null});
-})
-
 app.get('/admin-products-list', isAuthAdmin, (req, res) => {
     Product.find()
     .then((result) => res.render('admin-products-list', {title: 'LIST OF PRODUCTS', products: result, error: null }))
     .catch((error) => console.log(error));
+})
+
+app.delete('/admin-products-list/:id', (req, res) => {
+    const id = req.params.id;
+
+    Product.findByIdAndDelete(id)
+    .then((rs) => {
+        res.json({redirect: '/admin-products-list'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
 })
 
 app.get('/admin-login', (req, res) => {
@@ -99,17 +106,29 @@ app.get('/products', isAuthAdmin ,(req, res) => {
 
 app.post('/products', (req, res) => {
     const product = new Product(req.body);
+    const { make, prodName } = req.body;
 
-    const existProduct = Product.find(product.make, product.prodName);
+    const makeLowerCase = make.toLowerCase();
+    const prodNameLowerCase = prodName.toLowerCase();
 
-    if(!existProduct) {
-        product.save()
-            .then((result) => res.redirect('/admin-products-list'))
-            .catch((error) => console.log(error));
-        return;
-    } else {
-        res.render('products', {title: 'PRODUCTS', error: "Product Already Exist !"});
+    if(product.price <= 0) {
+        return res.render('products', {title: 'PRODUCTS', error: "Price can't be negative or 0"});
     }
+
+    Product.findOne({ make: makeLowerCase, prodName:prodNameLowerCase })
+    .then(existProduct => {
+        if (!existProduct) {
+            return product.save();
+        } else {
+            return res.render('products', { title: 'PRODUCTS', error: "Product Already Exists!" });        
+        }
+    })
+    .then(result => {
+        res.redirect('/admin-products-list');
+    })
+    .catch(error => {
+        res.render('products', { title: 'PRODUCTS', error });
+    });
     
 })
 

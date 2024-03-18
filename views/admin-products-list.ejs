@@ -1,4 +1,4 @@
-<%- include('./partials/header.ejs') %>
+<%- include('./partials/header.ejs') %> 
 <%- include('./partials/navbar.ejs') %>
 
 <div class="container-fluid">
@@ -11,32 +11,77 @@
       <!-- Main Content -->
       <div class="container">
         <h2 class="mt-3">Listed Products</h2>
-        <div class="row">
-          <% if(products.length > 0) { %>
-            <% products.forEach(product => { %>
-              <div class="col-sm-4">
-                <div class="card text-center mt-4" style="width: 18rem">
-                  <div class="text-right p-1"><span class="badge badge-info"><%= product.quantity %></span></div>
-                  <img src="..." class="card-img-top" alt="..." />
-                  <div class="card-body">
-                    <h5 class="card-title"><%= product.make %> <%= product.prodName %></h5>
-                    <p class="card-text"><%= product.description %></p>
-                    <p class="card-text"><strong>Price: </strong>$<%= product.price %></p>
-                    <a type="button" class="btn btn-primary" href="/products/<%= product._id %>">
-                      Add to Cart            
+
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">ID</th>
+              <th scope="col">MAKE</th>
+              <th scope="col">NAME</th>
+              <th scope="col">DESC</th>
+              <th scope="col">PRICE</th>
+              <th scope="col">QUANTITY</th>
+              <th scope="col">CATEGORY</th>
+              <th scope="col">DELETE</th>
+              <th scope="col">UPDATE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if(products.length > 0) { %> 
+              <% let counter = 1 %> 
+              <% products.forEach(product => { %>
+                <tr>
+                  <th scope="row"><%= counter++ %></th>
+                  <td><%= product._id %></td>
+                  <td><%= product.make %></td>
+                  <td><%= product.prodName %></td>
+                  <td><%= product.description %></td>
+                  <td><%= product.price %></td>
+                  <td><%= product.quantity %></td>
+                  <td><%= product.category %></td>
+                  <td>
+                    <a href="#" id="delete_<%= product._id %>" data-doc="<%= product._id %>">
+                      <button class="btn btn-outline-danger">DELETE</button>
                     </a>
-                  </div>
-                </div>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <h4>No Products to Display ):</h4>
-          <% } %>   
-        </div>
+                  </td>
+                  <td>
+                    <input type="hidden" name="command" value="update" />
+                    <button type="button" class="btn btn-outline-info">UPDATE</button>
+                  </td>
+                </tr>
+              <% }) %> 
+            <% } else { %>
+              <tr>
+                <td colspan="10"><h4>No Products to Display ):</h4></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
       </div>
-      <!-- End Main Content -->
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('[id^="delete_"]');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const productId = button.getAttribute('data-doc');
+        const endpoint = `/admin-products-list/${productId}`;
+
+        fetch(endpoint, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => window.location.href = data.redirect)
+        .catch(error => console.error('Error:', error));
+      });
+    });
+  });
+</script>
 
 <%- include('./partials/footer.ejs') %>

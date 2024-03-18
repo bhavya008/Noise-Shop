@@ -18,6 +18,10 @@ const productSchema = new Schema({
         type: String,
         required : true
     },
+    image: {
+        type: String,
+        default: 'https://cdn.pixabay.com/photo/2017/01/18/18/22/headphone-1990516_640.png'        
+    },
     price: {
         type: SchemaTypes.Double,
         required : true

@@ -11,7 +11,7 @@ const User = require("./model/User");
 
 const userRoutes = require('./routes/userRoutes');
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
 mongoose.connect(DBURI)

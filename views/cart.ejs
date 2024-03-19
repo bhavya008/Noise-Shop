@@ -4,7 +4,7 @@
 
     <div class="container">
     <h2 class="mt-3">Cart</h2>
-    <% if(product) { %>
+    <% if(cart.length > 0) { %>
     <table class="table mt-4">
         <thead>
           <tr>
@@ -15,19 +15,36 @@
           </tr>
         </thead>
         <tbody>
-          
+          <% cart.forEach((item,index) => { %>
           <tr>
-            <th scope="row"></th>
-            <td><%= product.make %> <%= product.prodName %></td>
-            <td><%= product.quantity %></td>
-            <td><%= product.price %></td>
+            <th><img src="<%= item.image%>" alt="" height="50px" width="50px"></th>
+            <td><%= item.make %> <%= item.prodName %></td>
+            <td>
+              <button onclick="decrementQuantity('<%= index %>')">-</button>
+              <%= item.quantity %>
+              <button onclick="incrementQuantity('<%= index %>')">+</button>                
+            </td>
+            <td><%= item.price %></td>
           </tr>
-            
+            <% }) %>
+            <tr><td><td><td><td><Strong><%= total %></Strong></td></td></td></td></tr>
         </tbody>
       </table>
       <% } else { %>
         <h5>Cart is Empty !</h5>
       <% } %>
 </div>
+
+<script>
+  function incrementQuantity(index) {
+      // Send an AJAX request to update the quantity in the server-side session
+      // After successful update, update the quantity display on the page
+  }
+
+  function decrementQuantity(index) {
+      // Send an AJAX request to update the quantity in the server-side session
+      // After successful update, update the quantity display on the page
+  }
+</script>
     
 <%- include('./partials/footer.ejs') %>

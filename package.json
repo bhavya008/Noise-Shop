@@ -19,5 +19,6 @@
     "express-session": "^1.18.0",
     "mongoose": "^8.2.1",
     "mongoose-double": "^0.0.1"
-  }
+  },
+  "devDependencies": {}
 }

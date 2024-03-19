@@ -149,8 +149,6 @@ app.get('/update-products/:id', (req, res) => {
 app.post('/update-products', isAuthAdmin,(req, res) => {
     const { id, make, prodName, description, price, quantity, category, image } = req.body;
 
-    // console.log(id + " " + make + " " + price);
-
     if(price <= 0) {
         return Product.findById(id)
         .then((result) => res.render('updateProduct', {title: 'UPDATE', value: result, error: "Price can't be negative or 0"}))
@@ -181,17 +179,38 @@ app.post('/update-products', isAuthAdmin,(req, res) => {
 })
 
 ///////////////////////////////////////
-
-app.get('/products/:id', (req, res) => {
+app.get('/products/:id', isAuth, (req, res) => {
     const id = req.params.id;
+    let cart = req.session.cart || [];
+    let total = req.session.total || 0;
 
     Product.findById(id)
-            .then((result) => res.render('cart', {title: 'CART', product: result}))
-            .catch((error) => console.log(error));
-})
+        .then((result) => {
+            const existingItemIndex = cart.findIndex(item => item._id.toString() === id); // checking if item exist in the cart
+
+            if (existingItemIndex !== -1) {
+                cart[existingItemIndex].quantity++;
+                cart[existingItemIndex].price += result.price;
+                total += result.price;
+            } else {
+                result.quantity = 1;
+                total += result.price;
+                cart.push(result);
+            }
+
+            req.session.cart = cart;
+            req.session.total = total;
+
+            res.redirect('/cart');
+        })
+        .catch((error) => console.log(error));
+});
 
 app.get('/cart', (req, res) => { 
-    res.render('cart', {title: 'CART', product: null});
+    const cart = req.session.cart || [];
+    let total = req.session.total || 0;
+    total = total.toFixed(2);
+    res.render('cart', {title: 'CART', cart: cart, total, product: null});
 })
 
 /////////////////////////////////// USER
@@ -206,4 +225,4 @@ app.get('/', (req, res) => {
         .then((result) => res.render('index', {title: 'HOME', products: result }))
         .catch((error) => console.log(error));
 
-})
+});

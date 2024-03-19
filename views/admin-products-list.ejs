@@ -23,8 +23,8 @@
               <th scope="col">PRICE</th>
               <th scope="col">QUANTITY</th>
               <th scope="col">CATEGORY</th>
-              <th scope="col">DELETE</th>
               <th scope="col">UPDATE</th>
+              <th scope="col">DELETE</th>
             </tr>
           </thead>
           <tbody>
@@ -41,13 +41,14 @@
                   <td><%= product.quantity %></td>
                   <td><%= product.category %></td>
                   <td>
-                    <a href="#" id="delete_<%= product._id %>" data-doc="<%= product._id %>">
-                      <button class="btn btn-outline-danger">DELETE</button>
-                    </a>
+                    <a type="button" class="btn btn-outline-info" href="/update-products/<%= product._id %>">
+                      UPDATE            
+                    </a>                  
                   </td>
                   <td>
-                    <input type="hidden" name="command" value="update" />
-                    <button type="button" class="btn btn-outline-info">UPDATE</button>
+                    <a id="delete_<%= product._id %>" data-doc="<%= product._id %>">
+                      <button class="btn btn-outline-danger">DELETE</button>
+                    </a>
                   </td>
                 </tr>
               <% }) %> 
@@ -66,6 +67,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const deleteButtons = document.querySelectorAll('[id^="delete_"]');
+    const updateButtons = document.querySelectorAll('[id^="update_"]');
 
     deleteButtons.forEach(button => {
       button.addEventListener('click', (e) => {
@@ -81,7 +83,23 @@
         .catch(error => console.error('Error:', error));
       });
     });
+
+    updateButtons.forEach(button => {
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    const productId = button.getAttribute('data-doc');
+    const endpoint = `/update-products/${productId}`;
+
+    fetch(endpoint, {
+      method: 'GET'
+    })
+    .catch(error => console.error('Error:', error));
   });
+});
+
+
+});
+
 </script>
 
 <%- include('./partials/footer.ejs') %>

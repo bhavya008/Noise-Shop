@@ -10,6 +10,7 @@ require('dotenv').config();
 const User = require("./model/User");
 
 const userRoutes = require('./routes/userRoutes');
+const mongooseDouble = require("mongoose-double");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -116,6 +117,10 @@ app.post('/products', (req, res) => {
         return res.render('products', {title: 'PRODUCTS', error: "Price can't be negative or 0"});
     }
 
+    if(product.image == '') {
+        product.image = 'https://cdn.pixabay.com/photo/2017/01/18/18/22/headphone-1990516_640.png'
+    }
+
     Product.findOne({ make: makeLowerCase, prodName:prodNameLowerCase })
     .then(existProduct => {
         if (!existProduct) {
@@ -129,8 +134,50 @@ app.post('/products', (req, res) => {
     })
     .catch(error => {
         res.render('products', { title: 'PRODUCTS', error });
+    });  
+})
+
+app.get('/update-products/:id', (req, res) => {
+    const id = req.params.id;
+    // console.log(id);
+
+    Product.findById(id)
+            .then((result) => res.render('updateProduct', {title: 'UPDATE', value: result, error: null}))
+            .catch((error) => console.log(error));
+})
+
+app.post('/update-products', isAuthAdmin,(req, res) => {
+    const { id, make, prodName, description, price, quantity, category, image } = req.body;
+
+    // console.log(id + " " + make + " " + price);
+
+    if(price <= 0) {
+        return Product.findById(id)
+        .then((result) => res.render('updateProduct', {title: 'UPDATE', value: result, error: "Price can't be negative or 0"}))
+        .catch((error) => console.log(error));
+    }
+
+    const imageUrl = image || 'https://cdn.pixabay.com/photo/2017/01/18/18/22/headphone-1990516_640.png';    
+
+    const update = {
+        make,
+        prodName,
+        description,
+        price,
+        quantity,
+        category,
+        image: imageUrl
+    };
+
+    // console.log(update);
+
+    Product.findByIdAndUpdate(id, update, { new: true }) 
+    .then(result => {
+        res.redirect('/admin-products-list');
+    })
+    .catch(error => {
+        res.render('updateProduct', { title: 'UPDATE', value: null, error });
     });
-    
 })
 
 ///////////////////////////////////////

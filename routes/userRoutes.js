@@ -16,6 +16,7 @@ const isAuth = (req, res, next) => {
 
 
 router.get('/profile', isAuth, (req, res) => {
+
     const sessionId = req.session.id;
 
     res.render('users/profile', {title: 'PROFILE'}); 
@@ -54,6 +55,7 @@ router.post('/login', async(req,res) => {
     }
 
     req.session.isAuth = true;
+
     res.render('users/profile', {title: 'PROFILE'});
 })
 

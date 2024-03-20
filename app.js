@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
 mongoose.connect(DBURI)
-    .then((result)=> app.listen(PORT, () => console.log('server started on ' + PORT)))
+    .then((result)=> app.listen(PORT, () => console.log('server started on http://localhost:' + PORT)))
     .catch((error) => console.log(error));
 
 app.set('view engine', 'ejs');
@@ -103,7 +103,7 @@ app.post('/admin-login', async(req,res) => {
 })
 
 app.get('/products', isAuthAdmin ,(req, res) => {
-    res.render('products', {title: 'PRODUCTS',  error: null});
+    res.render('products', {title: 'PRODUCTS', error: null});
 })
 
 app.post('/products', (req, res) => {
@@ -210,6 +210,7 @@ app.get('/cart', (req, res) => {
     const cart = req.session.cart || [];
     let total = req.session.total || 0;
     total = total.toFixed(2);
+
     res.render('cart', {title: 'CART', cart: cart, total, product: null});
 })
 
@@ -219,8 +220,7 @@ app.use(userRoutes);
 
 ///////////////////////////////////
 
-app.get('/', (req, res) => {
-    
+app.get('/', (req, res) => {    
     Product.find()
         .then((result) => res.render('index', {title: 'HOME', products: result }))
         .catch((error) => console.log(error));

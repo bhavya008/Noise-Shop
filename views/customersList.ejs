@@ -1,0 +1,82 @@
+<%- include('./partials/header.ejs') %> 
+<!-- <%- include('./partials/navbar.ejs') %> -->
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <!-- Sidebar -->
+      <%- include('./partials/sidebar.ejs') %>
+    </div>
+    <div class="col-md-9">
+      <!-- Main Content -->
+      <div class="container">
+        <h2 class="mt-3">Customers</h2>
+
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">ID</th>
+              <th scope="col">Firstname</th>
+              <th scope="col">Lastname</th>
+              <th scope="col">Username</th>
+              <!-- <th scope="col">Password</th> -->
+              <th scope="col">DELETE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if(customers.length > 0) { %> 
+              <% let counter = 1 %> 
+              <% customers.forEach(customer => { %>
+                <% if(customer.userName != "root") { %> <!-- if root user dont see its info -->
+                <tr>
+                  <th scope="row"><%= counter++ %></th>
+                  <td><%= customer._id %></td>
+                  <td><%= customer.firstName %></td>
+                  <td><%= customer.lastName %></td>
+                  <td><%= customer.userName %></td>
+                  <!-- <td><%= customer.password %></td> -->
+                  <td>
+                    <a id="delete_<%= customer._id %>" data-doc="<%= customer._id %>">
+                      <button class="btn btn-outline-danger">DELETE</button>
+                    </a>
+                  </td>
+                </tr>
+                <% } %>
+              <% }) %> 
+            <% } else { %>
+              <tr>
+                <td colspan="10"><h4>No Customers ):</h4></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('[id^="delete_"]');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const productId = button.getAttribute('data-doc');
+        const endpoint = `/admin-customers-list/${productId}`;
+
+        fetch(endpoint, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => window.location.href = data.redirect)
+        .catch(error => console.error('Error:', error));
+      });
+    });
+
+});
+
+</script>
+
+<%- include('./partials/footer.ejs') %>

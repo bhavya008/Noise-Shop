@@ -38,7 +38,11 @@ const isAuth = (req, res, next) => {
 
 const isAuthAdmin = (req, res, next) => {
     if(req.session.isAuth) {
-        next();
+        if(req.session.userName == "root"){
+            next();
+        } else {
+            res.redirect('/admin-login');
+        }
     } else {
         res.redirect('/admin-login');
     }
@@ -72,6 +76,22 @@ app.delete('/admin-products-list/:id', (req, res) => {
     })
 })
 
+app.get('/admin-customers-list', isAuthAdmin, (req, res) => {
+    User.find()
+    .then((result) => res.render('customersList', {title: 'CUSTOMERS', customers: result ,error: null}))
+    .catch((err) => console.log(err));
+})
+
+app.delete('/admin-customers-list/:id', (req, res)=> {
+    const id = req.params.id;
+
+    User.findByIdAndDelete(id)
+    .then((rs) => {
+        res.json({redirect: '/admin-customers-list'});
+    })
+    .catch((err) => console.log(err));
+})
+
 app.get('/admin-login', (req, res) => {
     var error = req.query.error;
     res.render('admin-login', {title: 'LOGIN', error: error || null});
@@ -99,6 +119,7 @@ app.post('/admin-login', async(req,res) => {
     }
 
     req.session.isAuth = true;
+    req.session.userName = root;
     res.render('products', {title: 'ADD PRODUCTS', error: null});
 })
 
@@ -139,7 +160,6 @@ app.post('/products', (req, res) => {
 
 app.get('/update-products/:id', (req, res) => {
     const id = req.params.id;
-    // console.log(id);
 
     Product.findById(id)
             .then((result) => res.render('updateProduct', {title: 'UPDATE', value: result, error: null}))

@@ -24,10 +24,10 @@
               <%= item.quantity %>
               <button onclick="incrementQuantity('<%= index %>')">+</button>                
             </td>
-            <td><%= item.price %></td>
+            <td>$<%= item.price %></td>
           </tr>
             <% }) %>
-            <tr><td><td><td><td><Strong><%= total %></Strong></td></td></td></td></tr>
+            <tr><td><td><td><td><b>Total (CAD)<h4><Strong>$<%= total %></Strong></h4></b></td></td></td></td></tr>
         </tbody>
       </table>
       <% } else { %>

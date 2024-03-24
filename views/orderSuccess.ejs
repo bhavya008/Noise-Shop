@@ -1,0 +1,25 @@
+<%- include('./partials/header.ejs') %>
+
+<%- include('./partials/navbar.ejs') %>
+
+<div class="container">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+        <h4 class="alert-heading">Thank you for your order by Noise Shop</h4>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <p>We appreciate your order and hope you enjoy your purchase from Noise Shop. Your order has been successfully processed.</p>
+        <hr>
+        <p class="mb-0">If you have any questions or need further assistance, feel free to contact our support team.</p>
+    </div>
+</div>
+<%- include('./partials/footer.ejs') %>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#close').click(function() {
+            window.location.href = '/';
+        });
+    });
+</script>

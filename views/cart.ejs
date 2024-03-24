@@ -10,29 +10,59 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Product</th>
+            <th scope="col">Category</th>
             <th scope="col">Quantity</th>
             <th scope="col">Price</th>
           </tr>
         </thead>
         <tbody>
+          <form action="/customer-order" method="post">
           <% cart.forEach((item,index) => { %>
+            <input type="hidden" name="itemId" value="<%= item._id %>">
           <tr>
-            <th><img src="<%= item.image%>" alt="" height="50px" width="50px"></th>
+            <th>
+              <img src="<%= item.image%>" alt="" height="50px" width="50px">
+              <input type="hidden" name="image" value="<%= item.image %>">
+            </th>
             <td><%= item.make %> <%= item.prodName %></td>
+            <input type="hidden" name="make" value="<%= item.make %>">
+            <input type="hidden" name="prodName" value="<%= item.prodName %>">
+            <td><%= item.category %></td>
+            <input type="hidden" name="category" value="<%= item.category %>">
             <td>
               <button onclick="decrementQuantity('<%= index %>')">-</button>
               <%= item.quantity %>
+              <input type="hidden" name="quantity" value="<%= item.quantity %>">
               <button onclick="incrementQuantity('<%= index %>')">+</button>                
             </td>
             <td>$<%= item.price %></td>
+            <input type="hidden" name="price" value="<%= item.price %>">
           </tr>
             <% }) %>
-            <tr><td><td><td><td><b>Total (CAD)<h4><Strong>$<%= total %></Strong></h4></b></td></td></td></td></tr>
+            <tr>
+              <td>
+                <td>
+                  <td>
+                    <button type="submit" class="btn btn-outline-secondary">ORDER</button>
+                  <td>
+                    <b>Total (CAD)
+                      <h4>
+                        <Strong>$<%= total %></Strong>
+                        <input type="hidden" name="total" value="<%= total %>">
+                      </h4>
+                      </b>
+                    </td>
+                  </td>
+                </td>
+              </td>
+            </tr>
         </tbody>
-      </table>
+      </table>            
+
       <% } else { %>
         <h5>Cart is Empty !</h5>
       <% } %>
+    </form>
 </div>
 
 <script>
@@ -45,6 +75,8 @@
       // Send an AJAX request to update the quantity in the server-side session
       // After successful update, update the quantity display on the page
   }
+
+
 </script>
     
 <%- include('./partials/footer.ejs') %>

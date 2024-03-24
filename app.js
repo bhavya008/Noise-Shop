@@ -4,9 +4,10 @@ const mongoose = require("mongoose");
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongodbSession = require('connect-mongodb-session')(session);
-const Product = require("./model/Product");
 require('dotenv').config();
 
+const Product = require("./model/Product");
+const Order = require("./model/Order");
 const User = require("./model/User");
 
 const userRoutes = require('./routes/userRoutes');
@@ -233,6 +234,73 @@ app.get('/cart', (req, res) => {
 
     res.render('cart', {title: 'CART', cart: cart, total, product: null});
 })
+
+app.post('/customer-order', async(req, res) => {
+    const {itemId, make, prodName, price, quantity, category, total, image} = req.body;
+    
+    const userId = req.session.userId;
+
+    console.log(make + price);
+
+    
+        let order = new Order({
+            userId,
+            itemId,
+            make,
+            prodName,
+            image,
+            price,
+            quantity,
+            category,
+            total
+        });
+    
+        console.log(order);
+
+        await order.save();
+    
+        res.redirect('/order-success');
+})
+
+app.get('/order-success', (req, res) => {
+    res.render('orderSuccess', {title: 'SUCCESS', error: null});
+})
+
+app.get('/admin-orders-list', async(req, res) => {
+    const orderInfo = req.session.orderInfo || null;
+    // console.log(orderInfo);
+    const users = await User.find();
+    const orders = await Order.find();
+
+    // console.log(user);
+    res.render('ordersList', {title: 'ORDERS', users, orders, error: null, orderInfo});
+})
+
+app.delete('/admin-orders-list/:id', (req, res) => {
+    const id = req.params.id;
+
+    Order.findByIdAndDelete(id)
+    .then((rs) => {
+        res.json({redirect: '/admin-orders-list'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+})
+
+app.get('/admin-orders-list/:id', (req, res) => {
+    const id = req.params.id;
+
+    Order.findById(id)
+    .then((rs) => {
+        req.session.orderInfo = rs;
+        res.json({redirect: '/admin-orders-list'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+})
+
 
 /////////////////////////////////// USER
 

@@ -55,7 +55,7 @@ router.post('/login', async(req,res) => {
     }
 
     req.session.isAuth = true;
-
+    req.session.userId = user._id;
     res.render('users/profile', {title: 'PROFILE'});
 })
 
@@ -67,7 +67,7 @@ router.get('/register', (req, res) => {
 router.post('/register', async(req, res) => {
     const {firstName, lastName, userName, password} = req.body;
 
-    if(firstName == '' && lastName == '' && userName == '' && password == '') {
+    if(firstName == '' || lastName == '' || userName == '' || password == '') {
         return res.redirect('/register?error=Empty%20fields%20u%20dumb');
     } 
 

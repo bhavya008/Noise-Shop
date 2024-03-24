@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongodbSession = require('connect-mongodb-session')(session);
+
 require('dotenv').config();
 
 const Product = require("./model/Product");
@@ -13,11 +14,14 @@ const User = require("./model/User");
 const userRoutes = require('./routes/userRoutes');
 const mongooseDouble = require("mongoose-double");
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
+const port = process.env.PORT || 3000;
+
+// const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
+const DBURI = process.env.DBURI;
+
 mongoose.connect(DBURI)
-    .then((result)=> app.listen(PORT, () => console.log('server started on http://localhost:' + PORT)))
+    .then((result)=> app.listen(port, () => console.log('server started on http://localhost:' + port)))
     .catch((error) => console.log(error));
 
 app.set('view engine', 'ejs');

@@ -18,7 +18,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
-const DBURI = process.env.DBURI;
+const DBURI = process.env.MONGO_URI;
 
 mongoose.connect(DBURI)
     .then((result)=> app.listen(port, () => console.log('server started on http://localhost:' + port)))

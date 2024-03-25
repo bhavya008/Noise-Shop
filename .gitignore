@@ -1,3 +1,35 @@
-node_modules
+# Node modules
+/node_modules
 
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Build artifacts
+/build/
+/dist/
+
+# Dependency lock files
+package-lock.json
+yarn.lock
+
+# IDE/Editor configuration
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Compiled code
+*.min.js
+*.min.css
+
+# Environment-specific files
 .env
+.env.local
+.env.production
+
+# User-specific files
+.DS_Store
+Thumbs.db

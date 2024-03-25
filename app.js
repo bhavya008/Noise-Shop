@@ -36,7 +36,7 @@ const store = new MongodbSession({
 const isAuth = (req, res, next) => {
     if(req.session.isAuth) {
         next();
-    } else {
+    } else {    
         res.redirect('/login');
     }
 }

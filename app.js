@@ -15,7 +15,7 @@ const userRoutes = require('./routes/userRoutes');
 const mongooseDouble = require("mongoose-double");
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 // const DBURI = 'mongodb+srv://netninja:test1234@nodetuts.zm7ovaq.mongodb.net/noise_shop?retryWrites=true&w=majority&appName=noise';
 const DBURI = process.env.MONGO_URI;

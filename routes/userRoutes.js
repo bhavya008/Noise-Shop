@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const User = require("../model/User");
+const Address = require("../model/Address");
 
 
 const router = express.Router();
@@ -88,7 +89,43 @@ router.post('/register', async(req, res) => {
 
     await user.save();
 
-    res.redirect('/login');
+    req.session.userId = user._id;
+    req.session.isAuth = true;
+    res.redirect('/userAddress');
+    // res.render('userAddress', {title: 'ADDRESS', error: null});
 })
 
+router.get('/userAddress', (req, res) => {
+    var error = req.query.error;
+
+    if(!req.session.isAuth) {
+        res.redirect('/login');
+    }
+    res.render('users/userAddress', {title: 'ADDRESS', error});
+
+});
+
+router.post('/userAddress', async(req, res) => {
+    const {line1, line2, postalCode, city, state, country} = req.body;
+
+    if(line1 == '' || postalCode == '' || city == '' || state == '' || country == '') {
+        return res.redirect('/userAddress?error=Empty%20fields%20u%20dumb');
+    } 
+
+    let userId = req.session.userId
+
+    let address = new Address({
+        userId,
+        line1,
+        line2,
+        postalCode,
+        city,
+        state,
+        country
+    });
+
+    await address.save();
+
+    res.redirect('/login');
+});
 module.exports = router;
